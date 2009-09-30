@@ -11,8 +11,9 @@ module SeleniumOnRails::TestBuilderActions
   #   setup :fixtures => :all
   #   setup :keep_session, :fixtures => [:foo, :bar]
   #   setup :clear_tables => [:foo, :bar]
-  def setup options = {}
-    options = {options => nil} unless options.is_a? Hash
+  def setup *args
+    options = (args.last.is_a? Hash) ? args.pop : {}
+    args.each { |sym| options[sym] = nil }
 
     opts = {:controller => 'selenium', :action => 'setup'}
     opts[:keep_session] = true if options.has_key? :keep_session
