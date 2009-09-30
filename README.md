@@ -43,7 +43,7 @@ To install:
 1. Install Selenium on Rails: script/plugin install <URL>
 2. If you‘re on Windows, gem install win32-open3
 3. If the RedCloth gem is available the Selenese test cases can use it for better markup.
-4. Run the Rakefile in the plugin‘s directory to run the tests in order to see that everything works. (If RedCloth isn‘t installed a few tests will fail since they assume RedCloth is installed.)
+4. Run the Rakefile in the plugin's directory to run the tests in order to see that everything works. (If RedCloth isn't installed a few tests will fail since they assume RedCloth is installed.)
 5. Create a test case: script/generate selenium <TestName>
 6. Start the server: script/server -e test
 7. Point your browser to localhost:3000/selenium
@@ -53,7 +53,7 @@ To install:
 
 The test cases can be written in a number of formats. Which one you choose is a matter of taste. You can generate your test files by running script/generate selenium or by creating them manually in your /test/selenium directory.
 
-## RSelenese, .rsel ##
+### RSelenese, .rsel ###
 
 RSelenese lets you write your tests in Ruby. This is my favorite format.
 
@@ -70,7 +70,7 @@ See SeleniumOnRails::TestBuilder for available commands. *IMPORTANT NOTE:* RSele
 
 Will only be executed when the test is loaded, not when the test is run. This is a common error and leads to tests that work the first time and fail the second time.
 
-## Selenese, .sel ##
+### Selenese, .sel ###
 
 Selenese is the dumbest format (in a good way). You just write your commands delimited by | characters.
 
@@ -80,7 +80,7 @@ Selenese is the dumbest format (in a good way). You just write your commands del
 
 If you don‘t want to write Selenese tests by hand you can use SeleniumIDE which has support for Selenese.
 
-## HTML/RHTML ##
+### HTML/RHTML ###
 
 You can write your tests in HTML/RHTML but that‘s mostly useful if you have existing tests you want to reuse.
 
@@ -107,6 +107,44 @@ in a Selenese test case:
 and in a RHTML test case:
 
 	<%= render :partial => 'login', :locals => {:name = 'Joe Schmo', :password => 'Joe Schmo'.reverse} %>
+
+## Per-test setup ##
+
+The `/selenium/setup` action mentioned above performs a per-test setup.  Out of the box you can load fixtures, clean tables and keep the session
+from the previous test case.  In RSelenese:
+
+    setup :fixtures => :all
+    setup :fixtures => [:foo, :bar]
+    setup :clear_tables => [:baz]
+    setup :keep_session
+    setup :keep_session, :fixtures => [:foo, :bar]
+
+You can also create your own setup handler to do things that would normally go in a `TestCase#setup` or `before`.  E.g., put this in
+`config/initializers/selenium.rb`:
+
+    if defined? SeleniumOnRails
+      class SeleniumController < ActionController::Base
+        def custom_setup_handler
+          if user_name = params[:user]
+            # Using AuthLogic
+            if user_name == 'nil' || user_name == ''
+              sess = UserSession.find
+              sess.destroy if sess
+            else
+              user = Fixtures.cache_for_connection(ActiveRecord::Base.connection)['users'].assoc(user_name).last
+              UserSession.create(User.find(user['id']))
+            end
+          end
+        end
+      end
+    end
+
+and this is your RSelenese test:
+
+    setup :fixtures => :all, :user => 'an_admin'
+
+and the user with fixture label `an_admin` will be logged in before the test is started.  Adapt the syntax to run the setup handler from
+"normal" Selenese.
 
 ## Configuration ##
 
