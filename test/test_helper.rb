@@ -3,10 +3,11 @@ RAILS_ROOT = "test" unless defined?(RAILS_ROOT)
 $: << File.expand_path(File.dirname(__FILE__) + "/../lib")
 
 require 'rubygems'
-gem 'activesupport'
+gem 'activesupport', '~> 2.2.0'
 require 'active_support'
 
-gem 'actionpack'
+gem 'actionpack', '~> 2.2.0'
+gem 'activerecord', '~> 2.2.0'
 require 'action_view/template_handler'
 require 'action_view/template_handlers/builder'
 require 'action_view/template_handlers/erb'
