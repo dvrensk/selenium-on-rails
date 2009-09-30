@@ -15,17 +15,15 @@ module SeleniumOnRails::TestBuilderActions
     options = (args.last.is_a? Hash) ? args.pop : {}
     args.each { |sym| options[sym] = nil }
 
-    opts = {:controller => 'selenium', :action => 'setup'}
-    opts[:keep_session] = true if options.has_key? :keep_session
+    options[:keep_session] = 'true' if options.has_key? :keep_session
 
-    [:fixtures, :clear_tables].each do |key|
-      if (f = options[key])
-        f = [f] unless f.is_a? Array
-        opts[key] = f.join ','
-      end
+    options.each_pair do |key,value|
+      value = [value] unless value.is_a? Array
+      options[key] = value.join ','
     end
 
-    open opts
+    options.merge!({:controller => 'selenium', :action => 'setup'})
+    open options
   end
 
   # Includes a partial.

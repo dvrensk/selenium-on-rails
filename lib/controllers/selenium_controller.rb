@@ -15,7 +15,10 @@ class SeleniumController < ActionController::Base
     end
     @cleared_tables = clear_tables params[:clear_tables].to_s
     @loaded_fixtures = load_fixtures params[:fixtures].to_s
-    render :file => view_path('setup.rhtml'), :layout => layout_path\
+    
+    custom_setup_handler if respond_to? :custom_setup_handler
+    
+    render :file => view_path('setup.rhtml'), :layout => layout_path
   end
 
   def test_file

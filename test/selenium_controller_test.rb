@@ -64,4 +64,13 @@ EOS
     assert_equal '3', assigns['result']['numCommandPasses']
     assert_equal  'A long time', assigns['result']['totalTime']
   end
+  
+  def test_custom_setup_handler
+    def @controller.custom_setup_handler
+      @param_foo = params[:foo]
+    end
+    def @controller.clear_tables(names) ; [] ; end # instead of a stub
+    get :setup, :foo => "bar"
+    assert_equal 'bar', assigns['param_foo'], "It seems we don't have access to params"
+  end
 end
